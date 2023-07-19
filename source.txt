@@ -1,0 +1,102 @@
+@echo off
+
+echo ----------------------------------------------------------------
+echo .                                                              .
+echo .                                                              .
+echo .             Feito por: Lucas K. Esmeraldino                  .
+echo .                                                              .
+echo .                                                              .
+echo .             Teamviewer automatico                            .
+echo .             v1.4.5                                           .
+echo .                                                              .
+echo ----------------------------------------------------------------
+
+::VERIFICACAO DE CERTIFICADO INSTALADO
+FOR /F "delims=" %%d in ('where /R "%programfiles(x86)%" "cert.ti"') do if not defined certificado set "certificado=%%d"
+
+if exist "%certificado%" (
+echo ----------------------------------------------------------------
+echo .                                                              .
+echo               Certificado Scurra Detectado!                       
+echo .                                                              .
+echo ----------------------------------------------------------------
+echo .                                                              .
+echo . Diretório: "%certificado%"                                
+echo .                                                              .
+echo ----------------------------------------------------------------
+timeout 2 > null
+exit
+)
+
+::VERIFICACAO DE TEAMVIEWER INSTALADO
+FOR /F "delims=" %%d in ('where /R "%programfiles(x86)%" "teamviewer.exe"') do if not defined teamviewer set "teamviewer=%%d"
+    
+if exist "%teamviewer%" (
+
+echo ----------------------------------------------------------------
+echo .                                                              .
+echo .                 	Teamviewer Detectado!                       .
+echo .                                                              .
+echo ----------------------------------------------------------------
+echo .                                                              .
+echo . Diretorio: "%teamviewer%"                                
+echo .                                                              .
+echo ----------------------------------------------------------------
+timeout 2 >nul
+
+::DESINSTALACAO DE TEAMVIEWER ANTERIOR
+taskkill /f /im "Teamviewer.exe"
+taskkill /f /im "Teamviewer_Service.exe"
+timeout 1 > null
+wmic product where name="Teamviewer" call uninstall /nointeractive
+wmic product where name="Teamviewer Host" call uninstall /nointeractive
+)
+
+::INSTALACAO DE TEAMVIEWER HOST
+echo ----------------------------------------------------------------
+echo .                                                              .
+echo .                   Teamviewer instalando!                     .
+echo .                                                              .
+echo ----------------------------------------------------------------
+
+msiexec.exe /i "[*TEAMVIEWER MSI DIRECTORY*]" /qn CUSTOMCONFIGID=68i797w SETTINGSFILE="[*CONFIGURATION FILE default.tvopt]*"
+timeout 3 >nul
+
+::INSTALACAO DE CERTIFICADO
+cd "C:\Program Files (x86)\TeamViewer"
+echo Certificado ##Made by Lucas Kopsch Esmeraldino > .\cert.ti
+cd C:\
+
+echo ----------------------------------------------------------------
+echo .                                                              .
+echo .                                                              .
+echo .               	Certificado instalado!                      .
+echo .                                                              .
+echo .                                                              .
+echo ----------------------------------------------------------------
+
+::ATRIBUICAO DE CONFIGURACOES PERSONALIZADAS AO TEAMVIEWER COMO GROUPID E APITOKEN
+FOR /F "delims=" %%i in ('where /R "%programfiles(x86)%" "teamviewer.exe"') do if not defined teamviewerLocal set "teamviewerLocal=%%i"
+echo Diretorio: "%teamviewerLocal%"
+echo .                                                              .  
+echo .                                                              .
+taskkill /f /im TeamViewer.exe
+taskkill /f /im TeamViewer_Service.exe
+echo .
+"%teamviewerLocal%" assign --api-token [*API TOKEN*] --grant-easy-access --group-id [*GROUP ID*]
+timeout 4 > null
+taskkill /f /im TeamViewer.exe
+taskkill /f /im TeamViewer_Service.exe
+timeout 4 > null
+start "" "%teamviewerLocal%"
+
+::CONCLUSAO DE INSTALACAO
+echo ----------------------------------------------------------------
+echo .                                                              .
+echo .                                                              .
+echo .		                    Concluido                           .
+echo .                                                              .
+echo .                                                              .
+echo ----------------------------------------------------------------
+timeout 2 > null
+exit
