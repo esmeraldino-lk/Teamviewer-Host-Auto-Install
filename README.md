@@ -1,4 +1,4 @@
-# Teamviewer-Host-Auto-Install 2013
+# Teamviewer-Host-Auto-Install 2023
 Configuração automática de Teamviewer host com grupo e arquivo de configuração pronto.
 
 O script tem as seguintes funcionalidades:
